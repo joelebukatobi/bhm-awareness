@@ -8,6 +8,21 @@ const firstNameInput = document.getElementById('first-name');
 const downloadBtn = document.getElementById('download-btn');
 const shareBtn = document.getElementById('share-btn');
 
+// Crop modal elements
+const cropModal = document.getElementById('crop-modal');
+const cropImage = document.getElementById('crop-image');
+const closeCropModalBtn = document.getElementById('close-crop-modal');
+const cancelCropBtn = document.getElementById('cancel-crop');
+const applyCropBtn = document.getElementById('apply-crop');
+let cropper = null;
+
+// Share modal elements
+const shareModal = document.getElementById('share-modal');
+const closeShareModalBtn = document.getElementById('close-share-modal');
+const copyImageBtn = document.getElementById('copy-image');
+const downloadImageBtn = document.getElementById('download-image');
+let currentBlob = null;
+
 // Asset paths
 const assets = {
   background: 'assets/background.png',
@@ -170,11 +185,82 @@ profileUpload.addEventListener('change', async (e) => {
   const reader = new FileReader();
   reader.onload = function (evt) {
     profileImage = evt.target.result;
-    profileImageObj = new window.Image();
-    profileImageObj.onload = renderCanvas;
-    profileImageObj.src = profileImage;
+    // Show crop modal
+    cropImage.src = profileImage;
+    cropModal.classList.add('active');
+    
+    // Initialize cropper after image loads
+    cropImage.onload = function() {
+      if (cropper) {
+        cropper.destroy();
+      }
+      cropper = new Cropper(cropImage, {
+        aspectRatio: 1,
+        viewMode: 1,
+        autoCropArea: 0.8,
+        responsive: false,
+        guides: true,
+        background: false,
+        cropBoxResizable: true,
+        cropBoxMovable: true,
+        dragMode: 'move',
+        restore: false,
+        checkCrossOrigin: false,
+        toggleDragModeOnDblclick: false,
+      });
+    };
   };
   reader.readAsDataURL(file);
+});
+
+// Close crop modal
+function closeCropModal() {
+  cropModal.classList.remove('active');
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
+  }
+  cropImage.src = '';
+  profileUpload.value = '';
+}
+
+closeCropModalBtn.addEventListener('click', closeCropModal);
+cancelCropBtn.addEventListener('click', closeCropModal);
+
+// Apply crop
+applyCropBtn.addEventListener('click', () => {
+  if (!cropper) return;
+  
+  // Get cropped canvas
+  const croppedCanvas = cropper.getCroppedCanvas({
+    width: 640,
+    height: 640,
+    fillColor: '#fff',
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high',
+  });
+  
+  // Convert to image
+  profileImageObj = new window.Image();
+  profileImageObj.onload = function() {
+    renderCanvas();
+    closeCropModal();
+  };
+  profileImageObj.src = croppedCanvas.toDataURL('image/png');
+});
+
+// Close modal when clicking outside
+cropModal.addEventListener('click', (e) => {
+  if (e.target === cropModal) {
+    closeCropModal();
+  }
+});
+
+// Handle escape key to close modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && cropModal.classList.contains('active')) {
+    closeCropModal();
+  }
 });
 
 firstNameInput.addEventListener('input', (e) => {
@@ -192,42 +278,71 @@ downloadBtn.addEventListener('click', () => {
   }, 'image/png');
 });
 
-shareBtn.addEventListener('click', () => {
+// Mobile detection
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+// Hide share button on desktop
+if (!isMobile()) {
+  shareBtn.style.display = 'none';
+}
+
+// Share modal functions
+function openShareModal() {
   canvas.toBlob(function (blob) {
-    const file = new File([blob], 'GBLGA-Conference-Story.png', { type: 'image/png' });
-    
-    // Try native sharing first (mobile)
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({
-        files: [file],
-        title: 'GBLGA Conference Story',
-        text: 'Share your personalized conference flyer!',
-      });
-    } else {
-      // Fallback for desktop: copy to clipboard
-      if (navigator.clipboard && window.ClipboardItem) {
-        navigator.clipboard.write([
-          new ClipboardItem({ 'image/png': blob })
-        ]).then(() => {
-          alert('Image copied to clipboard! You can now paste it anywhere.');
-        }).catch(() => {
-          // If clipboard fails, trigger download
-          const link = document.createElement('a');
-          link.download = 'GBLGA-Conference-Story.png';
-          link.href = URL.createObjectURL(blob);
-          link.click();
-          URL.revokeObjectURL(link.href);
-        });
-      } else {
-        // Final fallback: download
-        const link = document.createElement('a');
-        link.download = 'GBLGA-Conference-Story.png';
-        link.href = URL.createObjectURL(blob);
-        link.click();
-        URL.revokeObjectURL(link.href);
-      }
-    }
+    currentBlob = blob;
+    shareModal.classList.add('active');
+    lucide.createIcons();
   }, 'image/png');
+}
+
+function closeShareModal() {
+  shareModal.classList.remove('active');
+  currentBlob = null;
+}
+
+// Copy image to clipboard
+function copyImageToClipboard() {
+  if (!currentBlob) return;
+  
+  if (navigator.clipboard && window.ClipboardItem) {
+    navigator.clipboard.write([
+      new ClipboardItem({ 'image/png': currentBlob })
+    ]).then(() => {
+      alert('Image copied! Now open Instagram or WhatsApp and paste into your story.');
+      closeShareModal();
+    }).catch(() => {
+      alert('Could not copy image. Try downloading instead.');
+    });
+  } else {
+    alert('Copy not supported. Try downloading instead.');
+  }
+}
+
+// Download image
+function downloadImage() {
+  if (!currentBlob) return;
+  
+  const link = document.createElement('a');
+  link.download = 'GBLGA-Conference-Story.png';
+  link.href = URL.createObjectURL(currentBlob);
+  link.click();
+  URL.revokeObjectURL(link.href);
+  closeShareModal();
+}
+
+// Share button click (mobile only)
+shareBtn.addEventListener('click', openShareModal);
+closeShareModalBtn.addEventListener('click', closeShareModal);
+copyImageBtn.addEventListener('click', copyImageToClipboard);
+downloadImageBtn.addEventListener('click', downloadImage);
+
+// Close share modal when clicking outside
+shareModal.addEventListener('click', (e) => {
+  if (e.target === shareModal) {
+    closeShareModal();
+  }
 });
 
 window.addEventListener('DOMContentLoaded', renderCanvas);

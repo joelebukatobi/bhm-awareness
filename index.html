@@ -2,12 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=1080, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GBLGA Conference Story Generator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -32,6 +34,63 @@
         <button id="share-btn">Share</button>
       </section>
     </main>
+    <!-- Share Modal -->
+    <div id="share-modal" class="share-modal">
+      <div class="share-modal-content">
+        <div class="share-modal-header">
+          <h3>Share Your Story</h3>
+          <button class="close-modal" id="close-share-modal">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="share-options">
+          <div class="share-option" id="copy-image">
+            <div class="share-icon copy-icon">
+              <i data-lucide="copy"></i>
+            </div>
+            <span>Copy to Clipboard</span>
+          </div>
+          <div class="share-option" id="download-image">
+            <div class="share-icon download-icon">
+              <i data-lucide="download"></i>
+            </div>
+            <span>Save to Gallery</span>
+          </div>
+        </div>
+        <div class="share-instructions">
+          <p><strong>To share to your Story:</strong></p>
+          <ol>
+            <li><strong>Best option:</strong> Tap "Copy to Clipboard"</li>
+            <li>Open Instagram or WhatsApp</li>
+            <li>Create a new Story/Status</li>
+            <li>Paste the image (long press → Paste)</li>
+          </ol>
+          <p style="margin-top: 12px; font-size: 0.8rem; color: #999;">
+            Note: Apps don't allow direct sharing from websites for security.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Crop Modal -->
+    <div id="crop-modal" class="crop-modal">
+      <div class="crop-modal-content">
+        <div class="crop-modal-header">
+          <h3>Crop Your Photo</h3>
+          <button class="close-modal" id="close-crop-modal">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="crop-container">
+          <img id="crop-image" src="" alt="Image to crop" />
+        </div>
+        <div class="crop-modal-actions">
+          <button class="crop-btn crop-btn-secondary" id="cancel-crop">Cancel</button>
+          <button class="crop-btn crop-btn-primary" id="apply-crop">Apply Crop</button>
+        </div>
+      </div>
+    </div>
+
     <script src="app.js"></script>
     <script>
       lucide.createIcons();
