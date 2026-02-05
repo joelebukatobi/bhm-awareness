@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, initial-scale=1.0" />
+    <title>GBLGA Conference Story Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <section class="preview-area">
+        <canvas id="story-canvas" width="1080" height="1920"></canvas>
+      </section>
+      <section class="input-section">
+        <div class="upload-area" id="upload-area">
+          <input type="file" id="profile-upload" accept="image/png, image/jpeg, image/webp" hidden />
+          <label for="profile-upload" class="upload-label">
+            <i data-lucide="upload" class="upload-icon"></i>
+            <span>Upload Profile Picture</span>
+          </label>
+        </div>
+        <div class="name-input">
+          <input type="text" id="first-name" placeholder="Your Name" maxlength="32" />
+        </div>
+      </section>
+      <section class="action-buttons">
+        <button id="download-btn">Download</button>
+        <button id="share-btn">Share</button>
+      </section>
+    </main>
+    <script src="app.js"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
