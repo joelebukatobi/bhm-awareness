@@ -23,6 +23,11 @@ const copyImageBtn = document.getElementById('copy-image');
 const downloadImageBtn = document.getElementById('download-image');
 let currentBlob = null;
 
+// Welcome modal elements
+const welcomeModal = document.getElementById('welcome-modal');
+const closeWelcomeModalBtn = document.getElementById('close-welcome-modal');
+const startBtn = document.getElementById('start-btn');
+
 // Asset paths
 const assets = {
   background: 'assets/background.png',
@@ -364,4 +369,36 @@ shareModal.addEventListener('click', (e) => {
   }
 });
 
-window.addEventListener('DOMContentLoaded', renderCanvas);
+// Welcome modal functions
+function openWelcomeModal() {
+  // Show welcome modal on every page load/refresh
+  welcomeModal.classList.add('active');
+  lucide.createIcons();
+}
+
+function closeWelcomeModal() {
+  welcomeModal.classList.remove('active');
+}
+
+// Welcome modal event listeners
+closeWelcomeModalBtn.addEventListener('click', closeWelcomeModal);
+startBtn.addEventListener('click', closeWelcomeModal);
+
+// Close welcome modal when clicking outside
+welcomeModal.addEventListener('click', (e) => {
+  if (e.target === welcomeModal) {
+    closeWelcomeModal();
+  }
+});
+
+// Handle escape key to close welcome modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && welcomeModal.classList.contains('active')) {
+    closeWelcomeModal();
+  }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  renderCanvas();
+  openWelcomeModal();
+});
