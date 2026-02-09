@@ -85,7 +85,8 @@ async function renderCanvas() {
     // Draw background
     if (bg) ctx.drawImage(bg, 0, 0, 1080, 1920);
 
-    // Draw sponsors container background
+    // Sponsors section commented out
+    /*
     ctx.save();
     ctx.fillStyle = 'rgba(242, 241, 236, 0.5)';
     ctx.filter = 'blur(2px)';
@@ -94,28 +95,45 @@ async function renderCanvas() {
     ctx.fill();
     ctx.restore();
 
-    // Draw header logos (positions from Figma)
     if (sponsor1) ctx.drawImage(sponsor1, 223, 227, 103, 56);
     if (sponsor2) ctx.drawImage(sponsor2, 342, 227, 138, 56);
     if (sponsor3) ctx.drawImage(sponsor3, 496, 227, 190, 56);
     if (sponsor4) ctx.drawImage(sponsor4, 702, 227, 159, 56);
+    */
 
-    // Draw GBLGA logo
-    if (logo) ctx.drawImage(logo, 385, 96, 310.18, 83);
+    // Draw GBLGA logo (20% bigger: 310.18×83 → 372×100)
+    if (logo) ctx.drawImage(logo, 354, 96, 372, 100);
 
     // Draw separator
     ctx.fillStyle = '#f2f1ec';
     ctx.fillRect(328, 1042, 424, 4);
 
-    // Draw profile image in circular frame
+    // Draw profile image in circular frame with border
     const profileX = 220;
-    const profileY = 346;
+    const profileY = 320;
     const profileSize = 640;
+    const borderWidth = 4;
+    const padding = 8;
+    const totalSize = profileSize + padding * 2;
+    const centerX = profileX + profileSize / 2;
+    const centerY = profileY + profileSize / 2;
+    const radius = profileSize / 2;
+
     ctx.save();
+
+    // Draw border circle
     ctx.beginPath();
-    ctx.roundRect(profileX, profileY, profileSize, profileSize, 240);
+    ctx.arc(centerX, centerY, radius + padding + borderWidth / 2, 0, Math.PI * 2);
+    ctx.strokeStyle = '#F2F1EC';
+    ctx.lineWidth = borderWidth;
+    ctx.stroke();
+
+    // Create circular clip
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     ctx.closePath();
     ctx.clip();
+
     if (profileImageObj) {
       ctx.drawImage(profileImageObj, profileX, profileY, profileSize, profileSize);
     } else {
@@ -126,17 +144,17 @@ async function renderCanvas() {
       ctx.font = "200 120px 'Lato', sans-serif";
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(placeholderInitials, profileX + profileSize / 2, profileY + profileSize / 2);
+      ctx.fillText(placeholderInitials, centerX, centerY);
     }
     ctx.restore();
 
-    // Draw event text
+    // Draw event text (40px, weight 500, increased line height)
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillStyle = '#F2F1EC';
-    ctx.font = "300 32px 'Lato', 'Forum', sans-serif";
-    const eventText = `Hello there! My name is ${firstName} and I'm looking forward to attending the Gabelli Black and Latinx Graduate Association's upcoming conference on the 18th of February, 2026 by 5:00 PM. I'm particularly excited to dive into the discussion on how strategy, technology, and community intersect to drive purposeful leadership. Scan the QR Code to join me.`;
-    wrapText(ctx, eventText, 540, 1124, 888, 40);
+    ctx.font = "600 40px 'Lato', 'Forum', sans-serif";
+    const eventText = `Hi there, I'm ${firstName}, and I'll be attending the Gabelli BLX panel on Feb 18th by 5:00 PM. Let's dive into strategy and tech together, scan the QR code below to grab your spot!`;
+    wrapText(ctx, eventText, 540, 1124, 888, 56);
 
     // Draw QR code
     if (qr) ctx.drawImage(qr, 408, 1408, 264, 262);
@@ -188,9 +206,9 @@ profileUpload.addEventListener('change', async (e) => {
     // Show crop modal
     cropImage.src = profileImage;
     cropModal.classList.add('active');
-    
+
     // Initialize cropper after image loads
-    cropImage.onload = function() {
+    cropImage.onload = function () {
       if (cropper) {
         cropper.destroy();
       }
@@ -230,7 +248,7 @@ cancelCropBtn.addEventListener('click', closeCropModal);
 // Apply crop
 applyCropBtn.addEventListener('click', () => {
   if (!cropper) return;
-  
+
   // Get cropped canvas
   const croppedCanvas = cropper.getCroppedCanvas({
     width: 640,
@@ -239,10 +257,10 @@ applyCropBtn.addEventListener('click', () => {
     imageSmoothingEnabled: true,
     imageSmoothingQuality: 'high',
   });
-  
+
   // Convert to image
   profileImageObj = new window.Image();
-  profileImageObj.onload = function() {
+  profileImageObj.onload = function () {
     renderCanvas();
     closeCropModal();
   };
@@ -305,16 +323,17 @@ function closeShareModal() {
 // Copy image to clipboard
 function copyImageToClipboard() {
   if (!currentBlob) return;
-  
+
   if (navigator.clipboard && window.ClipboardItem) {
-    navigator.clipboard.write([
-      new ClipboardItem({ 'image/png': currentBlob })
-    ]).then(() => {
-      alert('Image copied! Now open Instagram or WhatsApp and paste into your story.');
-      closeShareModal();
-    }).catch(() => {
-      alert('Could not copy image. Try downloading instead.');
-    });
+    navigator.clipboard
+      .write([new ClipboardItem({ 'image/png': currentBlob })])
+      .then(() => {
+        alert('Image copied! Now open Instagram or WhatsApp and paste into your story.');
+        closeShareModal();
+      })
+      .catch(() => {
+        alert('Could not copy image. Try downloading instead.');
+      });
   } else {
     alert('Copy not supported. Try downloading instead.');
   }
@@ -323,7 +342,7 @@ function copyImageToClipboard() {
 // Download image
 function downloadImage() {
   if (!currentBlob) return;
-  
+
   const link = document.createElement('a');
   link.download = 'GBLGA-Conference-Story.png';
   link.href = URL.createObjectURL(currentBlob);
