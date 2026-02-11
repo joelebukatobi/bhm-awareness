@@ -158,7 +158,7 @@ async function renderCanvas() {
     ctx.textBaseline = 'top';
     ctx.fillStyle = '#F2F1EC';
     ctx.font = "600 40px 'Lato', 'Forum', sans-serif";
-    const eventText = `Hi there, I'm ${firstName}, and I'll be attending the Gabelli BLX panel on Feb 18th by 5:00 PM. Let's dive into strategy and tech together, scan the QR code below to grab your spot!`;
+    const eventText = `Hi there, I'm ${firstName}, and I'll be attending the Gabelli Black and LatinX Graduate Association Conference on Feb 18th by 5:00 PM. Let's dive into strategy and tech together, scan the QR code below to grab your spot!`;
     wrapText(ctx, eventText, 540, 1124, 888, 56);
 
     // Draw QR code
